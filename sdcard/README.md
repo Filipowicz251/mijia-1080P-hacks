@@ -41,5 +41,5 @@ md5sum and openssl are the only tools required.
 - edit secure.bin.dec and change the path of the file to /tmp/sd/ft/ (this is required by the Camera Core script)
 - openssl rsautl -encrypt -inkey prikey.pem -in secure.bin.dec -out ft/secret.bin
 
-* prikey.pem is the private key stored in the /data partition *
+*prikey.pem is the private key stored in the /data partition*
 

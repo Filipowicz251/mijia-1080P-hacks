@@ -25,12 +25,12 @@ should be used for binary/library, auxiliary script, etc.
 ############################################
 
 # Signing ft/ft_boot.sh
-This is **only** required if the private key changed in a firmware upgrade.
+This is **only** required if the private key has changed in a firmware upgrade.
 md5sum and openssl are the only tools required.
 
 ## Steps:
 - md5sum ft/ft_boot.sh > secure.bin.dec
-- edit secure.bin.dec and change the path of the filed to /tmp/sd/ft/ (this is required by the Camera Core script)
+- edit secure.bin.dec and change the path of the file to /tmp/sd/ft/ (this is required by the Camera Core script)
 - openssl rsautl -encrypt -inkey prikey.pem -in secure.bin.dec -out ft/secret.bin
 
 * prikey.pem is the private key stored in the /data partition *

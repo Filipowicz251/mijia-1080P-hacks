@@ -1,8 +1,11 @@
 # mijia-1080P-hacks
 
 ## Hack/Tools
-### Source
-  https://github.com/Filipowicz251/mijia-1080P-hacks/tree/master/sdcard  
+
+### Releaes
+[Releases](releases)
+### Source and Info
+ [Info and source code](sdcard)  
 ### Releases
     - ToDo
 

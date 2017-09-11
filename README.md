@@ -2,10 +2,8 @@
 
 ## Hack/Tools
 
-### Releaes
-[Releases](releases)
-### Source and Info
- [Info and source code](sdcard)  
+### [Releases](releases)
+### [Info and source code](sdcard)  
 ### Releases
     - ToDo
 

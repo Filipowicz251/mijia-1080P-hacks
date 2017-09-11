@@ -4,8 +4,6 @@
 
 ### [Releases](releases)
 ### [Info and source code](sdcard)  
-### Releases
-    - ToDo
 
 ## Hardware 
 ### mijia 1080p

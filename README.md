@@ -9,6 +9,6 @@ Toolset for Mijia 1080p to enhance the features of this Xiaomi Camera.
 * .....
 
 
-### [Development](sdcard)  
+### [Info/Development](https://github.com/Filipowicz251/mijia-1080P-hacks/wiki)  
 
 

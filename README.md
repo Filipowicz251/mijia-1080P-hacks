@@ -3,7 +3,7 @@
 Toolset for Mijia 1080p to enhance the features of this Xiaomi Camera.
 
 ### Features:
-* SSH/SCP/SFTP by beardrop (in progress)
+* SSH/SCP/SFTP by beardrop (SSH done)
 * RTSP (in progress)
 * Web Service for configuration (maybe)
 * .....

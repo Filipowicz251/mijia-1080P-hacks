@@ -15,7 +15,7 @@ Download the latest release from [Releases](https://github.com/Filipowicz251/mij
 https://gitter.im/fang-hacks/
 
 # Advance Development Info
-All the information relevant to customizations and development of the tools can be found in the [wiki] (https://github.com/Filipowicz251/mijia-1080P-hacks/wiki) 
+All the information relevant to customizations and development of the tools can be found in the [wiki](https://github.com/Filipowicz251/mijia-1080P-hacks/wiki) 
  
 
 

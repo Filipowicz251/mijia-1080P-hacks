@@ -1,4 +1,7 @@
-# mijia-1080P -- Tooling
+
+![Alt text](images/mijia_1080p/Mijia1080.png?raw=true "Title")
+
+# mijia-1080P
 
 Toolset for Mijia 1080p to enhance the features of this Xiaomi Camera.
 

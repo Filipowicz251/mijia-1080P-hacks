@@ -8,9 +8,11 @@ Toolset for Mijia 1080p to enhance the features of this Xiaomi Camera.
 ### Features:
 * SSH/SCP/SFTP by beardrop (SSH done)
 * Voices in English (Instead of Chinese)
-* RTSP (in progress)
-* Web Service for configuration (maybe)
-* .....
+* RTSP (lite version)
+* Todo
+** Better RTSP Server with security
+** Web Service for configuration (maybe)
+**  .....
 
 # Use
 Download the latest release from [Releases](https://github.com/Filipowicz251/mijia-1080P-hacks/releases) to a fat32 SDCARD, insert in the camera and turn it on.

@@ -8,7 +8,7 @@ Toolset for Mijia 1080p to enhance the features of this Xiaomi Camera.
 ### Features:
 * SSH and SFTP Server
 * Voices in English (Instead of Chinese)
-* RTSP (lite version)
+* RTSP (lite version) https://github.com/willthrom/rtspServer_gm
 * Todo
     * Better RTSP Server with security
     * Web Service for configuration (maybe)

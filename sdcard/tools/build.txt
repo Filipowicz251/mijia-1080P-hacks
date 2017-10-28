@@ -1,0 +1,113 @@
+HOW TO BUILD (lighttpd, php, samba)
+
+First, find and install the GM8136 SDK. Instructions can be found in GM8136_Linux_User_Guide_V1.0.pdf.
+
+Assuming you are working under $HOME/sdk, if not then change the paths accordingly.
+
+The TOOLSDIR is also set in several conf files, don't change it.
+
+Note that samba has some problems with getaddrinfo and nmbd does not work.
+
+Create "setenv.sh":
+
+#!/bin/sh
+export TARGETMACH=arm-unknown-linux-uclibcgnueabi
+export BUILDMACH=i686-pc-linux-gnu
+export CROSS=arm-unknown-linux-uclibcgnueabi
+export CC=${CROSS}-gcc
+export CXX=${CROSS}-g++
+export LD=${CROSS}-ld
+export AS=${CROSS}-as
+export AR=${CROSS}-ar
+export STRIP=${CROSS}-strip
+export RANLIB=${CROSS}-ranlib
+export PREFIX=$HOME/sdk/build
+export TOOLSDIR=/tmp/sd/tools
+
+run "source setenv.sh"
+
+Download and extract all of these below, configure each one and run "make install".
+
+If everything goes well, you will end up with the binaries under $HOME/sdk/build
+
+Recommended to run $STRIP $HOME/sdk/build/(s)bin/*, files will get much smaller.
+
+// zlib-1.2.11
+
+./configure --prefix=$PREFIX --static
+
+// libxml2-2.9.6
+
+./configure --prefix=$PREFIX --host=$TARGETMACH ARCH=arm --disable-shared --enable-static --without-python --without-iconv --without-lzma --with-zlib=$PREFIX Z_CFLAGS="$CFLAGS -DHAVE_ZLIB_H=1 -DHAVE_LIBZ=1 -I$PREFIX/include"
+
+// jpeg-9b
+
+./configure --prefix=$PREFIX --host=$TARGETMACH --disable-shared --enable-static
+
+// libpng-1.6.32
+
+./configure --prefix=$PREFIX --host=$TARGETMACH --disable-shared --enable-static LDFLAGS="-L$PREFIX/lib" CPPFLAGS="-I$PREFIX/include"
+
+// libgd-2.2.5
+
+./configure --prefix=$PREFIX --host=$TARGETMACH ARCH=arm --disable-shared --enable-static --with-jpeg=$PREFIX --with-png=$PREFIX --without-tiff --with-zlib=$PREFIX
+
+// pcre-8.41
+
+./configure --prefix=$PREFIX --host=$TARGETMACH --disable-shared --enable-static
+
+// lighttpd-1.4.47
+
+./configure --prefix=$PREFIX --host=$TARGETMACH --disable-shared --enable-static --without-mysql --with-zlib=$PREFIX --without-bzip2 --with-pcre=$PREFIX LIGHTTPD_STATIC=yes CPPFLAGS=-DLIGHTTPD_STATIC
+
+// src/plugin_static.h (create if it does not exists, needed to link modules statically, since libz is also static)
+PLUGIN_INIT(mod_accesslog)
+PLUGIN_INIT(mod_access)
+PLUGIN_INIT(mod_alias)
+PLUGIN_INIT(mod_auth)
+PLUGIN_INIT(mod_authn_file)
+PLUGIN_INIT(mod_cgi)
+PLUGIN_INIT(mod_compress)
+PLUGIN_INIT(mod_deflate)
+PLUGIN_INIT(mod_dirlisting)
+PLUGIN_INIT(mod_evasive)
+PLUGIN_INIT(mod_expire)
+PLUGIN_INIT(mod_extforward)
+PLUGIN_INIT(mod_fastcgi)
+PLUGIN_INIT(mod_flv_streaming)
+PLUGIN_INIT(mod_indexfile)
+PLUGIN_INIT(mod_proxy)
+PLUGIN_INIT(mod_redirect)
+PLUGIN_INIT(mod_rewrite)
+PLUGIN_INIT(mod_rrdtool)
+PLUGIN_INIT(mod_scgi)
+PLUGIN_INIT(mod_secdownload)
+PLUGIN_INIT(mod_setenv)
+PLUGIN_INIT(mod_simple_vhost)
+PLUGIN_INIT(mod_ssi)
+PLUGIN_INIT(mod_staticfile)
+PLUGIN_INIT(mod_status)
+PLUGIN_INIT(mod_uploadprogress)
+PLUGIN_INIT(mod_userdir)
+PLUGIN_INIT(mod_usertrack)
+PLUGIN_INIT(mod_vhostdb)
+PLUGIN_INIT(mod_webdav)
+
+// php-7.1.10
+
+./configure --prefix=$PREFIX --host=$TARGETMACH --target=arm --with-config-file-path=$TOOLSDIR/etc --enable-pdo --with-pdo-mysql --with-sqlite3 --with-pdo-sqlite --without-pear --enable-simplexml --enable-json --disable-mbregex --enable-sockets --enable-fpm --disable-opcache --enable-libxml --enable-ftp --enable-mbstring --enable-mbregex --enable-mbregex-backtrack --with-mhash --enable-hash --enable-xml --enable-session --enable-soap --enable-tokenizer --enable-xmlreader --with-xmlrpc --enable-xmlwriter --without-xsl --enable-dom --enable-zip --with-zlib --with-pcre-regex --with-pcre-jit --with-gd --with-jpeg-dir=$PREFIX --with-png-dir=$PREFIX --with-xpm-dir=no --with-libxml-dir=$PREFIX --disable-all
+
+// ext/gd/php_gd.h
+#ifdef HAVE_GD_XPM
+#undef HAVE_GD_XPM
+#endif
+
+// ext/gd/gd_compat.c
+#ifdef HAVE_GD_JPG
+#include <stdio.h> // ** add this line
+#include <jpeglib.h>
+#endif
+
+// samba-3.6.25
+
+./configure --prefix=$PREFIX --host=$TARGETMACH --target=$TARGETMACH --disable-shared -enable-static --with-configdir=$TOOLSDIR/etc --with-nmbdsocketdir=$TOOLSDIR/tmp/samba --without-krb5 --without-ldap --without-ads --disable-cups --enable-swat=no --with-winbind=no samba_cv_CC_NEGATIVE_ENUM_VALUES=yes libreplace_cv_HAVE_GETADDRINFO=no ac_cv_file__proc_sys_kernel_core_pattern=yes

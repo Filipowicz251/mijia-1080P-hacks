@@ -35,6 +35,21 @@ if [ -z "$SSH_ROOT_PASS" ];then
  SSH_ROOT_PASS="qwerty123456"
 fi
 
+DISABLED_OTA=$(awk -F "=" '/DISABLED_OTA/ {print $2}' $sd_mountdir/midgard.ini)
+if [ -z "$DISABLED_OTA" ];then
+ DISABLED_OTA=0
+fi
+
+HTTP_ENABLED=$(awk -F "=" '/HTTP_ENABLED/ {print $2}' $sd_mountdir/midgard.ini)
+if [ -z "$HTTP_ENABLED" ];then
+ HTTP_ENABLED=0
+fi
+
+SAMBA_ENABLED=$(awk -F "=" '/SAMBA_ENABLED/ {print $2}' $sd_mountdir/midgard.ini)
+if [ -z "$SAMBA_ENABLED" ];then
+ SAMBA_ENABLED=0
+fi
+
 ##################################################################################	
 
 echo -e "\nConfiguration:"  >> $sd_mountdir/$LOGFILE
@@ -43,6 +58,9 @@ echo -e "  CLOUD_STREAMING_DISABLED=$CLOUD_STREAMING_DISABLED"  >> $sd_mountdir/
 echo -e "  RTSP_ENABLED=$RTSP_ENABLED"  >> $sd_mountdir/$LOGFILE
 echo -e "  CONFIG_LINE=$CONFIG_LINE"  >> $sd_mountdir/$LOGFILE
 echo -e "  SSH_ROOT_PASS=$SSH_ROOT_PASS"  >> $sd_mountdir/$LOGFILE
+echo -e "  DISABLED_OTA=$DISABLED_OTA"  >> $sd_mountdir/$LOGFILE
+echo -e "  HTTP_ENABLED=$HTTP_ENABLED"  >> $sd_mountdir/$LOGFILE
+echo -e "  SAMBA_ENABLED=$SAMBA_ENABLED"  >> $sd_mountdir/$LOGFILE
 
 VERSION=/mnt/media/mmcblk0p1/os-release
 
@@ -208,6 +226,17 @@ esac
 exit $?
 EOF
 
+fi
+
+if [ $HTTP_ENABLED -eq 1 ];then
+	echo -e "Web Server (8080)" >> $sd_mountdir/$LOGFILE 2>&1
+	$sd_mountdir/tools/bin/lighttpd -f $sd_mountdir/tools/etc/lighttpd.conf >> $sd_mountdir/$LOGFILE 2>&1
+fi
+
+if [ $SAMBA_ENABLED -eq 1 ];then
+	echo -e "Samba setup..." >> $sd_mountdir/$LOGFILE 2>&1
+	(echo $SSH_ROOT_PASS; echo $SSH_ROOT_PASS) | $sd_mountdir/tools/bin/smbpasswd -a -s root >> $sd_mountdir/$LOGFILE 2>&1
+	$sd_mountdir/tools/bin/smbd -D
 fi
 
 echo -e "\nScript Ends. Ok" >> $sd_mountdir/$LOGFILE 2>&1

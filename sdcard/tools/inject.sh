@@ -16,6 +16,8 @@ flagUnmount=0
 /tmp/ld-uClibc.so.0 /tmp/busybox echo -e "----------------------------------------------------"  |  /tmp/ld-uClibc.so.0 /tmp/busybox logger -t miio_ota
 /tmp/ld-uClibc.so.0 /tmp/busybox cat /proc/mtd  |  /tmp/ld-uClibc.so.0 /tmp/busybox logger -t miio_ota
 
+psRTSP_Server=/tmp/ld-uClibc.so.0 /tmp/busybox ps -o pid,args -C bash | /tmp/ld-uClibc.so.0 /tmp/busybox awk '/rtsp_basic/ { print $1 }'
+kill -9 $psRTSP_Server | /tmp/ld-uClibc.so.0 /tmp/busybox logger -t miio_ota 
 
 /tmp/ld-uClibc.so.0 /tmp/busybox echo -e "\n mount"  |  /tmp/ld-uClibc.so.0 /tmp/busybox logger -t miio_ota
 /tmp/ld-uClibc.so.0 /tmp/busybox echo -e "----------------------------------------------------"  |  /tmp/ld-uClibc.so.0 /tmp/busybox logger -t miio_ota

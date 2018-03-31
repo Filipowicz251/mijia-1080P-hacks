@@ -1,4 +1,4 @@
-SCRIPT_VERSION="1.7"
+SCRIPT_VERSION="1.8"
 
 NOW=$(date +"%Y%m%d%H%M")
 LOGFILE="log-$NOW.log"
@@ -6,7 +6,6 @@ sd_mountdir=/tmp/sd
 
 echo -e "Customm Script Start v$SCRIPT_VERSION"
 echo -e "Running Customm Script v$SCRIPT_VERSION" > $sd_mountdir/$LOGFILE
-
 
 ## Config
 ##################################################################################			
@@ -78,6 +77,11 @@ else
 fi
 
 
+echo "Forcing Mode 4"  >> $sd_mountdir/$LOGFILE
+ft_mode="4"
+echo $ft_mode > /tmp/ft_mode
+
+
 #if [ ! -d $sd_mountdir/tff2 ];then
 #	echo -e "\nBacking up /mnt/data partition"  >> $sd_mountdir/$LOGFILE
 #	mkdir $sd_mountdir/tff2
@@ -137,7 +141,7 @@ if [ -f $sd_mountdir/tools/dropbear/dropbearmulti ];then
 	fi
 	
 			
-	echo -e "...Adding Protecction to Change of Keys..."  >> $sd_mountdir/$LOGFILE 2>&1
+	echo -e "...Adding Protection to Change of Keys..."  >> $sd_mountdir/$LOGFILE 2>&1
 	#cat /mnt/data/miio_ota/post-ota.sh >> $sd_mountdir/$LOGFILE 2>&1
 	
 	if [ $DISABLED_OTA -eq 1 ];then
@@ -150,22 +154,24 @@ exit 1
 EOF
 	fi
 	
-	#cp $sd_mountdir/tools/pre-ota.sh /mnt/data/miio_ota/pre-ota.sh  >> $sd_mountdir/$LOGFILE 2>&1	
-	
+	#cp $sd_mountdir/tools/pre-ota.sh /mnt/data/miio_ota/pre-ota.sh  >> $sd_mountdir/$LOGFILE 2>&1		
 	cp $sd_mountdir/tools/post-ota.sh /mnt/data/miio_ota/post-ota.sh  >> $sd_mountdir/$LOGFILE 2>&1
 	cp $sd_mountdir/tools/inject.sh /tmp/inject.sh  >> $sd_mountdir/$LOGFILE 2>&1
 	
-	## if second path is there
-	## We are in 139, just remove the old entry point.
-	if [ ! -f /mnt/data/ft/ft.zip ];then
-		cp $sd_mountdir/tools/ft.zip /mnt/data/ft >> $sd_mountdir/$LOGFILE 2>&1
-		if [ $? -eq 0 ];then
-			echo -e "Added second phase"  >> $sd_mountdir/$LOGFILE 2>&1
-			rm -rf $sd_mountdir/ft >> $sd_mountdir/$LOGFILE 2>&1
-		else
-			echo -e "Error adding second phase"  >> $sd_mountdir/$LOGFILE 2>&1
-		fi		
-	fi
+	
+	#cp /mnt/data/miio_ota/miio_ota /tmp/miio_ota    >> $sd_mountdir/$LOGFILE	
+	#mount --bind /tmp/miio_ota /mnt/data/miio_ota/miio_ota >> $sd_mountdir/$LOGFILE	
+	
+	#cp /mnt/data/ot_wifi_tool/miio_recv_line /tmp/miio_recv_line
+	#mount --bind /tmp/miio_recv_line /mnt/data/ot_wifi_tool/miio_recv_line >> $sd_mountdir/$LOGFILE	
+	
+	#cp /mnt/data/ot_wifi_tool/miio_client /tmp/miio_client    >> $sd_mountdir/$LOGFILE	
+	#mount --bind /tmp/miio_client /mnt/data/ot_wifi_tool/miio_client >> $sd_mountdir/$LOGFILE	
+	
+	#cp /mnt/data/ot_wifi_tool/miio_client_helper_nomqtt.sh /tmp/miio_client_helper_nomqtt.sh    >> $sd_mountdir/$LOGFILE	
+	#mount --bind /tmp/miio_client_helper_nomqtt.sh /mnt/data/ot_wifi_tool/miio_client_helper_nomqtt.sh >> $sd_mountdir/$LOGFILE
+	
+		
 else
 	echo -e "\nSSH Server not found $sd_mountdir/tools/dropbear/dropbear"  >> $sd_mountdir/$LOGFILE 2>&1
 fi
@@ -179,23 +185,22 @@ echo 0 > /tmp/ft_mode
 
 
 ## Simulate S50gm standard flow (for now)
-CONFIG_PARTITION=/gm/config
-echo -e "vg boot"
-sh ${CONFIG_PARTITION}/vg_boot.sh ${CONFIG_PARTITION}
+VERSION_FIRMWARE=`cat $VERSION | grep XIAOMI_VERSION`
+if [ -z "${VERSION_FIRMWARE##*0099*}" ];then
+	echo -e "...Init GM Driver for 0099 version..."  >> $sd_mountdir/$LOGFILE 2>&1
+	CONFIG_PARTITION=/gm/config
+	echo -e "vg boot"
+	sh ${CONFIG_PARTITION}/vg_boot.sh ${CONFIG_PARTITION}
+fi
 
-## Valhalla!!
-/mnt/data/miot/ledctl 0 50 2 300 300 2
-/mnt/data/miot/ledctl 1 50 2 400 200 2
-sleep 5
-/mnt/data/miot/ledctl 0 1 1 100 200 2	
-/mnt/data/miot/ledctl 1 1 1 100 200 2	
-
- if [ $CLOUD_DISABLED -eq 1 ];then
-	echo -e "...Disabling Cloud... TODO"  >> $sd_mountdir/$LOGFILE 2>&1
+if [ $CLOUD_DISABLED -eq 1 ];then
+	echo -e "...Disabling Cloud...(TODO)"  >> $sd_mountdir/$LOGFILE 2>&1
 	# echo "" > /etc/init.d/S59miio_agent
 	# echo "" > /etc/init.d/S60miio_avstreamer
 	# echo "" > /etc/init.d/S93ble
-	#mount --bind /tmp/miio_avstreamer /mnt/data/miio_av/miio_avstreamer		 
+	#mount --bind /tmp/miio_avstreamer /mnt/data/miio_av/miio_avstreamer
+	#echo " echo \"...Disabling Cloud...\" " > /tmp/miio_client
+	#mount --bind /tmp/miio_client /mnt/data/ot_wifi_tool/miio_client
 	# echo "" > /etc/init.d/S93miio_client
 	# /etc/init.d/S51cron stop  >> $sd_mountdir/$LOGFILE 2>&1
 	# echo "" > /etc/init.d/S94miio_bt
@@ -209,6 +214,7 @@ fi
 
 if [ $RTSP_ENABLED -eq 1 ];then
 	echo -e "...Enabling RTSP..." >> $sd_mountdir/$LOGFILE 2>&1
+	echo -e "...Enabling RTSP..." > /dev/kmsg
 cat <<EOF > /etc/init.d/S99zerlot
 #!/bin/sh
 #
@@ -219,7 +225,7 @@ case "\$1" in
   start)
 	$sd_mountdir/tools/rtsp_basic $CONFIG_LINE & > $sd_mountdir/${LOGFILE}_RTSP.log 2>&1	
 	
-	echo "init script all done" > /dev/kmsg
+	echo "init script all done (TOOLS)" > /dev/kmsg
     ;;
 esac
 
@@ -242,27 +248,9 @@ fi
 echo -e "\nScript Ends. Ok" >> $sd_mountdir/$LOGFILE 2>&1
 
 
-# if [ $CLOUD_DISABLED -eq 1 ];then
-		# echo -e "...Disabling Cloud..."  >> $sd_mountdir/$LOGFILE 2>&1
-		# /etc/init.d/S59miio_agent stop  >> $sd_mountdir/$LOGFILE 2>&1
-		# /etc/init.d/S60miio_avstreamer stop  >> $sd_mountdir/$LOGFILE 2>&1
-		# /etc/init.d/S93ble stop  >> $sd_mountdir/$LOGFILE 2>&1
-		# /etc/init.d/S93miio_client stop  >> $sd_mountdir/$LOGFILE 2>&1
-		# /etc/init.d/S51cron stop  >> $sd_mountdir/$LOGFILE 2>&1 
-		# /etc/init.d/S94miio_bt stop  >> $sd_mountdir/$LOGFILE 2>&1
-		# /etc/init.d/S94miot_qrcode stop  >> $sd_mountdir/$LOGFILE 2>&1
-		# /etc/init.d/S95miio_ota stop  >> $sd_mountdir/$LOGFILE 2>&1
-	# else
-		# if [ $CLOUD_STREAMING_DISABLED -eq 1 ];then
-			# echo -e "...Disabling Cloud Streaming..."  >> $sd_mountdir/$LOGFILE 2>&1
-			# tries=10	
-			# while [ \$tries -gt 0 ] ; do
-				# /etc/init.d/S60miio_avstreamer stop  >> $sd_mountdir/$LOGFILE 2>&1	
-				# if [ \$? -eq 0 ];then
-					# break;
-				# fi
-				# sleep 1
-				# tries=\$((tries-1))
-			# done				
-		# fi
-	# fi
+## Valhalla!!
+/mnt/data/miot/ledctl 0 50 2 300 300 2
+/mnt/data/miot/ledctl 1 50 2 400 200 2
+sleep 5
+/mnt/data/miot/ledctl 0 1 1 100 200 2
+/mnt/data/miot/ledctl 1 1 1 100 200 2

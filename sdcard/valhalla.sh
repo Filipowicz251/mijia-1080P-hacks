@@ -49,6 +49,14 @@ if [ -z "$SAMBA_ENABLED" ];then
  SAMBA_ENABLED=0
 fi
 
+miio_ssid=$(awk -F "=" '/miio_ssid/ {print $2}' $sd_mountdir/midgard.ini)
+
+miio_passwd=$(awk -F "=" '/miio_passwd/ {print $2}' $sd_mountdir/midgard.ini)
+
+miio_key_mgmt=$(awk -F "=" '/miio_key_mgmt/ {print $2}' $sd_mountdir/midgard.ini)
+
+AP_SSID=$(awk -F "=" '/AP_SSID/ {print $2}' $sd_mountdir/midgard.ini)
+
 ##################################################################################	
 
 echo -e "\nConfiguration:"  >> $sd_mountdir/$LOGFILE
@@ -60,6 +68,10 @@ echo -e "  SSH_ROOT_PASS=$SSH_ROOT_PASS"  >> $sd_mountdir/$LOGFILE
 echo -e "  DISABLED_OTA=$DISABLED_OTA"  >> $sd_mountdir/$LOGFILE
 echo -e "  HTTP_ENABLED=$HTTP_ENABLED"  >> $sd_mountdir/$LOGFILE
 echo -e "  SAMBA_ENABLED=$SAMBA_ENABLED"  >> $sd_mountdir/$LOGFILE
+/usr/sbin/nvram set miio_ssid=$miio_ssid
+/usr/sbin/nvram set miio_passwd=$miio_passwd
+/usr/sbin/nvram set miio_key_mgmt=$miio_key_mgmt
+/usr/sbin/nvram set AP_SSID=$AP_SSID
 
 VERSION=/mnt/media/mmcblk0p1/os-release
 
@@ -87,6 +99,10 @@ echo $ft_mode > /tmp/ft_mode
 #	mkdir $sd_mountdir/tff2
 #	cp -rf /mnt/data $sd_mountdir/tff2
 #fi
+
+echo -e "Starting WiFi Config" >> $sd_mountdir/$LOGFILE 2>&1
+/tmp/sd/tools/wifi_start.sh >> $sd_mountdir/$LOGFILE 2>&1
+
 
 echo -e " Staring SSH Server"  >> $sd_mountdir/$LOGFILE
 
@@ -254,3 +270,15 @@ echo -e "\nScript Ends. Ok" >> $sd_mountdir/$LOGFILE 2>&1
 sleep 5
 /mnt/data/miot/ledctl 0 1 1 100 200 2
 /mnt/data/miot/ledctl 1 1 1 100 200 2
+
+# /mnt/data/miot/ledctl X X X X X X
+#	 					| | | | | |can be 1, 2; higher with more privilege	
+#	 					| | | | |off time (ms), only meaningful when BLINK
+#	 					| | | |On time (ms), only meaningful when BLINK
+#	 					| | |0=ON, 1=OFF, 2=BLINK
+#	 					| | Brightness from 0 to 100
+#	 					|0=Blue, 1= Red
+
+
+
+					  

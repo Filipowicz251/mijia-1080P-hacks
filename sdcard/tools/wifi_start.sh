@@ -38,14 +38,18 @@ wifi_ap_mode()
     killall udhcpc wpa_supplicant hostapd wpa_cli udhcpd
     ifconfig uap0 up
     ifconfig uap0 192.168.14.1 netmask 255.255.255.0
-
-    MODEL=`/usr/sbin/nvram factory get model`
-    vendor=`echo ${MODEL} | cut -d '.' -f 1`
-    product=`echo ${MODEL} | cut -d '.' -f 2`
-    version=`echo ${MODEL} | cut -d '.' -f 3`
-
     cp /etc/hostapd.conf /tmp/
-    echo "ssid=${vendor}-${product}-${version}_mibt$1" >> /tmp/hostapd.conf
+
+    if [[ -z $AP_SSID ]]; then
+        MODEL=`/usr/sbin/nvram factory get model`
+        vendor=`echo ${MODEL} | cut -d '.' -f 1`
+        product=`echo ${MODEL} | cut -d '.' -f 2`
+        version=`echo ${MODEL} | cut -d '.' -f 3`
+        echo "ssid=${vendor}-${product}-${version}_mibt$1" >> /tmp/hostapd.conf
+    else
+        echo "ssid=$AP_SSID" >> /tmp/hostapd.conf
+    fi
+
     mkdir -p /var/run/hostapd
     hostapd /tmp/hostapd.conf -B
 
@@ -113,31 +117,5 @@ start()
 	wifi_ap_mode $MAC
     fi
 }
-
-start_valhalla()
-{		
-	## Mounting point
-	mmc_device=""
-	if [ -b /dev/mmcblk0p1 ];then
-		mmc_device=/dev/mmcblk0p1
-	elif [ -b /dev/mmcblk0 ];then
-		mmc_device=/dev/mmcblk0
-	fi
-	sd_mountdir=/tmp/sd
-	mkdir /tmp/sd
-	mount -t vfat $mmc_device $sd_mountdir
-	
-	
-	NOW=$(date +"%Y%m%d%H%M")
-	LOGFILE="log-Wifi-$NOW.log"	
-	echo -e "start_valhalla WIFI" | /tmp/busybox logger -t miio_ota
-	echo -e "Wifi_start Valhalla.sh" >> $sd_mountdir/$LOGFILE
-	[ -f /tmp/valhalla.pid ] && return
-	echo 1 > /tmp/valhalla.pid
-		
-	$sd_mountdir/valhalla.sh
-}
-
-start_valhalla
 
 start

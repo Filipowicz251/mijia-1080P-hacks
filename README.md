@@ -9,10 +9,15 @@ Toolset for Mijia 1080p to enhance the features of this Xiaomi Camera.
 * SSH and SFTP Server
 * Voices in English (Instead of Chinese)
 * RTSP (lite version) https://github.com/willthrom/rtspServer_gm
+* Auto-connect to WiFi without the need of a phone
 * Todo
     * Better RTSP Server with security
+    * Add fallback mode if incorrect parameters for the STA mode
     * Web Service for configuration (maybe)
-    * .....
+    * Add live stream in webpage
+    * ~~MQTT server~~
+    * ~~Control the IR LED~~
+    * Told us what you want
 
 # Use
 Download the latest release from [Releases](https://github.com/Filipowicz251/mijia-1080P-hacks/releases) to a fat32 SDCARD, insert in the camera and turn it on.

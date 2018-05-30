@@ -15,8 +15,8 @@ Toolset for Mijia 1080p to enhance the features of this Xiaomi Camera.
     * Add fallback mode if incorrect parameters for the STA mode
     * Web Service for configuration (maybe)
     * Add live stream in webpage
-    * MQTT server
-    * Control the IR LED
+    * ~~MQTT server~~
+    * ~~Control the IR LED~~
     * Told us what you want
 
 # Use

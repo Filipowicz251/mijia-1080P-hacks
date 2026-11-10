@@ -212,6 +212,18 @@ elif [ $CLOUD_STREAMING_DISABLED -eq 1 ];then
 	mount --bind /tmp/miio_avstreamer /mnt/data/miio_av/miio_avstreamer		 
 fi
 
+# Audio remains opt-in; preserve the existing video-only server by default.
+RTSP_SERVER="$sd_mountdir/tools/rtsp_basic"
+RTSP_AUDIO_ENABLED=$(awk -F "=" '/^RTSP_AUDIO_ENABLED=/ {print $2}' "$sd_mountdir/midgard.ini" | tr -d '\r')
+if [ "$RTSP_AUDIO_ENABLED" = "1" ];then
+    if [ "$CLOUD_STREAMING_DISABLED" = "1" ] && [ "$CLOUD_DISABLED" = "0" ] &&
+       [ -f "$sd_mountdir/tools/rtsp_audio" ] && [ -f "$sd_mountdir/tools/rtsp_audio_start.sh" ];then
+        RTSP_SERVER="/bin/sh $sd_mountdir/tools/rtsp_audio_start.sh"
+    else
+        echo "AAC requires CLOUD_STREAMING_DISABLED=1, CLOUD_DISABLED=0 and the audio server files; using video-only RTSP" >> "$sd_mountdir/$LOGFILE"
+    fi
+fi
+
 if [ $RTSP_ENABLED -eq 1 ];then
 	echo -e "...Enabling RTSP..." >> $sd_mountdir/$LOGFILE 2>&1
 	echo -e "...Enabling RTSP..." > /dev/kmsg
@@ -223,7 +235,7 @@ cat <<EOF > /etc/init.d/S99zerlot
 
 case "\$1" in
   start)
-	$sd_mountdir/tools/rtsp_basic $CONFIG_LINE & > $sd_mountdir/${LOGFILE}_RTSP.log 2>&1	
+	$RTSP_SERVER $CONFIG_LINE > $sd_mountdir/${LOGFILE}_RTSP.log 2>&1 &
 	
 	echo "init script all done (TOOLS)" > /dev/kmsg
     ;;
